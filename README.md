@@ -124,10 +124,10 @@ python run.py
   **延迟不要太短**，很可能账号异常
   
   ```json
-  "action_delay_min_seconds": 20,    //最短延迟(s)
-  "action_delay_max_seconds": 30,    //最长延迟(s)
-  "parse_delay_min_seconds": 3,    //爬取动态内容最短延迟(s)
-  "parse_delay_max_seconds": 5    //爬取动态内容最长延迟(s)
+  "action_delay_min_seconds": 20, 
+  "action_delay_max_seconds": 30, 
+  "parse_delay_min_seconds": 3,
+  "parse_delay_max_seconds": 5   
   ```
   
 - 详细日志查看 `bili.log`
