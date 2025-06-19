@@ -1,0 +1,137 @@
+import json
+import time
+import requests
+import qrcode
+from urllib.parse import quote
+from pathlib import Path
+
+
+class BiliQRLogin:
+    API_QR_GEN = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate"
+    API_QR_POLL = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"
+    QR_CODE_API = "https://devtool.tech/api/qrcode"
+
+    DEFAULT_HEADERS = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+        "Referer": "https://www.bilibili.com/"
+    }
+
+    def __init__(self, config_path: str = "config.json"):
+        self.config_path = Path(config_path).absolute()
+        self.session = requests.Session()
+        self.session.headers.update(self.DEFAULT_HEADERS)
+
+    def _generate_qr(self) -> dict:
+        resp = self.session.get(self.API_QR_GEN, timeout=10)
+        resp.raise_for_status()
+        return resp.json()["data"]
+
+    def _poll_login(self, qrcode_key: str) -> dict:
+        params = {"qrcode_key": qrcode_key}
+        resp = self.session.get(self.API_QR_POLL, params=params, timeout=10)
+        resp.raise_for_status()
+        return resp.json()["data"]
+
+    def _get_cookies_str(self) -> str:
+        """获取cookies"""
+        cookie_dict = {}
+        for cookie in self.session.cookies:
+            cookie_dict[cookie.name] = cookie.value
+        return "; ".join([f"{name}={value}" for name, value in cookie_dict.items()])
+
+    def _save_to_config(self, cookies: str, remark: str):
+        config = {"accounts": []}
+        if self.config_path.exists():
+            with open(self.config_path, "r", encoding="utf-8") as f:
+                config = json.load(f)
+
+        replaced = False
+        for idx, account in enumerate(config["accounts"]):
+            if account["remark"] == remark:
+                config["accounts"][idx]["cookie"] = cookies
+                replaced = True
+                break
+
+        if not replaced:
+            config["accounts"].append({
+                "remark": remark,
+                "cookie": cookies,
+                "enabled": True,
+                "like_enabled": True,
+                "comment_enabled": True,
+                "repost_enabled": True,
+                "follow_enabled": True,
+                "use_fixed_comment": False,
+                "fixed_comments": [],
+                "use_fixed_repost": False,
+                "fixed_reposts": [],
+                "emoticons": []
+            })
+
+        with open(self.config_path, "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+
+    def _display_qr(self, url: str):
+        encoded_url = quote(url)
+        qr_image_url = f"{self.QR_CODE_API}?data={encoded_url}&width=300"
+
+        print("\n二维码：")
+        qr = qrcode.QRCode()
+        qr.add_data(qr_image_url)
+        qr.print_ascii()
+        print(f"链接获取二维码图片进行登录：")
+        print(f"➡ {qr_image_url}")
+        try:
+            import webbrowser
+            webbrowser.open(qr_image_url)
+            print("\n已尝试在浏览器中打开二维码图片，请检查您的浏览器。")
+        except Exception as e:
+            print(f"无法自动打开浏览器: {e}. 请手动访问上面的链接。")
+
+    def login(self, remark: str = "新账号") -> bool:
+        try:
+            qr_data = self._generate_qr()
+            print("\n请选择以下任一种方式扫码登录：")
+            self._display_qr(qr_data["url"])
+
+            start_time = time.time()
+            while time.time() - start_time < 180:
+                poll_data = self._poll_login(qr_data["qrcode_key"])
+
+                if poll_data["code"] == 0:
+                    # 访问登录后的URL让session自动保存所有cookies
+                    self.session.get(poll_data["url"])
+                    
+                    # 从session中获取所有cookies
+                    cookies = self._get_cookies_str()
+                    self._save_to_config(cookies, remark)
+                    print(f"\n✅ 登录成功！账号已保存到 {self.config_path}")
+                    return True
+                elif poll_data["code"] == 86038:
+                    print("\n❌ 二维码已过期，请重新运行程序")
+                    return False
+                elif poll_data["code"] == 86090:
+                    print("\n已扫码，请在手机上确认登录...")
+
+                time.sleep(2)
+
+            print("\n登录超时（3分钟）")
+            return False
+
+        except requests.exceptions.RequestException as e:
+            print(f"\n网络错误: {str(e)}")
+            return False
+        except Exception as e:
+            print(f"\n发生未知错误: {str(e)}")
+            return False
+
+
+if __name__ == "__main__":
+    print(" 账号登录 ".center(40, "="))
+    remark = input("请输入账号备注（回车使用默认名称）：").strip() or "新账号"
+
+    qr = BiliQRLogin()
+    if qr.login(remark):
+        print("\n账号添加完成")
+    else:
+        print("\n登录失败")

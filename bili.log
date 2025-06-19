@@ -1,0 +1,87 @@
+2025-06-19 11:05:52 - INFO - [Bilibili.Main] - main - ----------哔哩哔哩动态抽奖----------
+2025-06-19 11:05:52 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - ----------开始爬取动态内容----------
+2025-06-19 11:05:52 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 没有新的动态需要爬取
+2025-06-19 11:05:52 - WARNING - [Bilibili.Main] - main - 没有新的动态需要处理，程序将退出。
+2025-06-19 11:05:52 - INFO - [Bilibili.TelegramBot] - send_telegram_notification - Telegram 通知已禁用。
+2025-06-19 11:07:38 - INFO - [Bilibili.Main] - main - ----------哔哩哔哩动态抽奖----------
+2025-06-19 11:07:38 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - ----------开始爬取动态内容----------
+2025-06-19 11:07:38 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 没有新的动态需要爬取
+2025-06-19 11:07:38 - WARNING - [Bilibili.Main] - main - 没有新的动态需要处理，程序将退出。
+2025-06-19 11:07:38 - INFO - [Bilibili.TelegramBot] - send_telegram_notification - Telegram 通知已禁用。
+2025-06-19 11:08:11 - INFO - [Bilibili.Main] - main - ----------哔哩哔哩动态抽奖----------
+2025-06-19 11:08:11 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - ----------开始爬取动态内容----------
+2025-06-19 11:08:11 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 开始爬取 90 个新动态...
+2025-06-19 11:08:12 - INFO - [Bilibili.Api] - _check_login_status - 账号 [解析] Cookie 验证成功。
+├─ 用户: しずくちゃん_ 
+├─ 等级: Lv.2 
+├─ UID: 3546714579405332 
+└─ 硬币: 6
+2025-06-19 11:08:13 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics -  [进度 1/90]  正在爬取动态: 1072352088554471426
+2025-06-19 11:08:13 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 成功爬取动态内容
+2025-06-19 11:08:17 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics -  [进度 2/90]  正在爬取动态: 1074490243530358792
+2025-06-19 11:08:17 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 成功爬取动态内容
+2025-06-19 11:08:22 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics -  [进度 3/90]  正在爬取动态: 1075763993403981844
+2025-06-19 11:08:22 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 成功爬取动态内容
+2025-06-19 11:18:35 - INFO - [Bilibili.Main] - main - ----------哔哩哔哩动态抽奖----------
+2025-06-19 11:18:35 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - ----------开始爬取动态内容----------
+2025-06-19 11:18:35 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 开始爬取 1 个新动态...
+2025-06-19 11:18:35 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics -  [进度 1/1]  正在爬取动态: 1079326239314935824
+2025-06-19 11:18:35 - ERROR - [Bilibili.Main] - phase_1_fetch_dynamics - 处理动态 1079326239314935824 失败: BilibiliClient 不可用
+2025-06-19 11:18:38 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 阶段1 爬取完成
+├─ 成功: 0
+├─ 失败: 1
+└─ 用时: 3.10 秒
+2025-06-19 11:18:38 - WARNING - [Bilibili.Main] - main - 没有新的动态需要处理，程序将退出。
+2025-06-19 11:18:38 - INFO - [Bilibili.TelegramBot] - send_telegram_notification - Telegram 通知已禁用。
+2025-06-19 11:21:16 - INFO - [Bilibili.Main] - main - ----------哔哩哔哩动态抽奖----------
+2025-06-19 11:21:16 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - ----------开始爬取动态内容----------
+2025-06-19 11:21:16 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 开始爬取 1 个新动态...
+2025-06-19 11:21:17 - INFO - [Bilibili.Api] - _check_login_status - 账号 [解析] Cookie 验证成功。
+├─ 用户: しずくちゃん_ 
+├─ 等级: Lv.2 
+├─ UID: 3546714579405332 
+└─ 硬币: 6
+2025-06-19 11:21:18 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics -  [进度 1/1]  正在爬取动态: 1079326239314935824
+2025-06-19 11:21:18 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 成功爬取动态内容
+2025-06-19 11:21:22 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 阶段1 爬取完成
+├─ 成功: 1
+├─ 失败: 0
+└─ 用时: 5.22 秒
+2025-06-19 11:21:22 - INFO - [Bilibili.Main] - phase_2_bili_actions - ------ 开始执行 Bilibili 操作 ------
+2025-06-19 11:21:22 - INFO - [Bilibili.Api] - _check_login_status - 账号 [新账号] Cookie 验证成功。
+├─ 用户: しずくちゃん_ 
+├─ 等级: Lv.2 
+├─ UID: 3546714579405332 
+└─ 硬币: 6
+2025-06-19 11:21:23 - INFO - [Bilibili.Main] - phase_2_bili_actions - 开始处理 1 个动态，使用 1 个账号...
+2025-06-19 11:21:23 - INFO - [Bilibili.Main] - phase_2_bili_actions - [动态进度 1/1] 正在处理动态 https://t.bilibili.com/1079326239314935824
+2025-06-19 11:21:23 - INFO - [Bilibili.Main] - phase_2_bili_actions - [动态 1/1] [账号 1/1] 新账号 正在执行操作...
+2025-06-19 11:21:23 - INFO - [Bilibili.Main] - phase_2_bili_actions - [动态 1/1] [账号 1/1] 点赞成功
+2025-06-19 11:21:51 - INFO - [Bilibili.Main] - phase_2_bili_actions - [动态 1/1] [账号 1/1] 关注成功
+2025-06-19 11:22:14 - INFO - [Bilibili.Main] - phase_2_bili_actions - 账号 [新账号] 正在为动态 1079326239314935824 生成评论...
+2025-06-19 11:22:20 - INFO - [Bilibili.DeepSeek] - generate_comment - 评论生成成功
+├─ 使用 265 tokens
+└─ 内容：作为索泰的老用户，18年来见证了显卡性能的飞跃发展，从GTX到RTX系列每一代都给我带来惊喜。期待索泰继续推出更多创新产品，无索不玩！#索泰18周年庆#
+2025-06-19 11:22:21 - INFO - [Bilibili.Main] - phase_2_bili_actions - [动态 1/1] [账号 1/1] 评论成功
+2025-06-19 11:22:44 - INFO - [Bilibili.Main] - phase_2_bili_actions - [动态 1/1] [账号 1/1] 转发成功
+2025-06-19 11:23:12 - INFO - [Bilibili.Main] - phase_2_bili_actions - 阶段2 操作完成
+└─ 用时: 110.87 秒
+2025-06-19 11:23:12 - INFO - [Bilibili.Main] - main - ------ 所有阶段完成 ------ 
+总耗时: 116.09 秒 
+最终统计:
+ 成功点赞: 1 
+转发: 1 
+关注: 1 
+评论: 1 
+失败总数: 0
+2025-06-19 11:23:12 - INFO - [Bilibili.TelegramBot] - send_telegram_notification - Telegram 通知已禁用。
+2025-06-19 11:31:58 - INFO - [Bilibili.Main] - main - ----------哔哩哔哩动态抽奖----------
+2025-06-19 11:31:58 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - ----------开始爬取动态内容----------
+2025-06-19 11:31:58 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 没有新的动态需要爬取
+2025-06-19 11:31:58 - WARNING - [Bilibili.Main] - main - 没有新的动态需要处理，程序将退出。
+2025-06-19 11:31:58 - INFO - [Bilibili.TelegramBot] - send_telegram_notification - Telegram 通知已禁用。
+2025-06-19 11:32:18 - INFO - [Bilibili.Main] - main - ----------哔哩哔哩动态抽奖----------
+2025-06-19 11:32:18 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - ----------开始爬取动态内容----------
+2025-06-19 11:32:18 - INFO - [Bilibili.Main] - phase_1_fetch_dynamics - 没有新的动态需要爬取
+2025-06-19 11:32:18 - WARNING - [Bilibili.Main] - main - 没有新的动态需要处理，程序将退出。
+2025-06-19 11:32:18 - INFO - [Bilibili.TelegramBot] - send_telegram_notification - Telegram 通知已禁用。

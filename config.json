@@ -1,0 +1,40 @@
+{
+  "accounts": [
+  ],
+  "deepseek": {
+    "deepseek_api_key": "",
+    "deepseek_base_url": "https://api.deepseek.com/v1",
+    "deepseek_model": "deepseek-chat",
+    "temperature": 1.3
+  },
+  "parser": {
+    "parser_retry_times": 2,
+    "parser_timeout": 20,
+    "parser_headers": {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      "Referer": "https://www.bilibili.com/"
+    }
+  },
+  "telegram": {
+    "enable": false,
+    "bot_token": "",
+    "chat_id": ""
+  },
+  "proxy": {
+    "enable": false,
+    "http": "",
+    "https": ""
+  },
+  "file_paths": {
+    "origin_urls": "origin.txt",
+    "history_urls": "cache/history_url_list.txt",
+    "parsed_dynamics": "output/parsed_dynamics.txt",
+    "main_log": "bili.log",
+    "error_log": "output/error.log"
+  },
+  "log_level": "INFO",
+  "action_delay_min_seconds": 20,
+  "action_delay_max_seconds": 30,
+  "parse_delay_min_seconds": 3,
+  "parse_delay_max_seconds": 5
+}
