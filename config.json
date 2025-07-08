@@ -2,7 +2,7 @@
   "accounts": [
   ],
   "deepseek": {
-    "deepseek_api_key": "sk-8a3863013aeb4c688aa3a2baa5117b12",
+    "deepseek_api_key": "",
     "deepseek_base_url": "https://api.deepseek.com/v1",
     "deepseek_model": "deepseek-chat",
     "temperature": 1.3
