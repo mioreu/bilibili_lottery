@@ -1,34 +1,28 @@
 import json
 import time
+from typing import List
 import requests
 import qrcode
+import webbrowser
+import api.api_constants as api
+from api.bilibili_client import BilibiliClient
 from urllib.parse import quote
 from pathlib import Path
 
-
 class BiliQRLogin:
-    API_QR_GEN = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate"
-    API_QR_POLL = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"
-    QR_CODE_API = "https://devtool.tech/api/qrcode"
-
-    DEFAULT_HEADERS = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-        "Referer": "https://www.bilibili.com/"
-    }
-
     def __init__(self, config_path: str = "config.json"):
         self.config_path = Path(config_path).absolute()
         self.session = requests.Session()
-        self.session.headers.update(self.DEFAULT_HEADERS)
+        self.session.headers.update(api.BASE_HEADERS)
 
     def _generate_qr(self) -> dict:
-        resp = self.session.get(self.API_QR_GEN, timeout=10)
+        resp = self.session.get(api.API_QR_GEN, timeout=10)
         resp.raise_for_status()
         return resp.json()["data"]
 
     def _poll_login(self, qrcode_key: str) -> dict:
         params = {"qrcode_key": qrcode_key}
-        resp = self.session.get(self.API_QR_POLL, params=params, timeout=10)
+        resp = self.session.get(api.API_QR_POLL, params=params, timeout=10)
         resp.raise_for_status()
         return resp.json()["data"]
 
@@ -59,13 +53,25 @@ class BiliQRLogin:
                 "enabled": True,
                 "like_enabled": True,
                 "comment_enabled": True,
+                "ai_comment": True,
                 "repost_enabled": True,
                 "follow_enabled": True,
                 "use_fixed_comment": False,
                 "fixed_comments": [],
                 "use_fixed_repost": False,
                 "fixed_reposts": [],
-                "emoticons": []
+                "emoticons": [
+                    "[星星眼]",
+                    "[给心心]",
+                    "[点赞]",
+                    "[脱单doge]",
+                    "[鼓掌]",
+                    "[热词系列_干杯]",
+                    "[tv_doge]",
+                    "[tv_色]",
+                    "_(≧∇≦」∠)_",
+                    "[打call]"
+                ]
             })
 
         with open(self.config_path, "w", encoding="utf-8") as f:
@@ -73,7 +79,7 @@ class BiliQRLogin:
 
     def _display_qr(self, url: str):
         encoded_url = quote(url)
-        qr_image_url = f"{self.QR_CODE_API}?data={encoded_url}&width=300"
+        qr_image_url = f"{api.QR_CODE_API}?data={encoded_url}&width=300"
 
         print("\n二维码：")
         qr = qrcode.QRCode()
@@ -82,7 +88,6 @@ class BiliQRLogin:
         print(f"链接获取二维码图片进行登录：")
         print(f"➡ {qr_image_url}")
         try:
-            import webbrowser
             webbrowser.open(qr_image_url)
             print("\n已尝试在浏览器中打开二维码图片，请检查您的浏览器。")
         except Exception as e:
@@ -99,10 +104,7 @@ class BiliQRLogin:
                 poll_data = self._poll_login(qr_data["qrcode_key"])
 
                 if poll_data["code"] == 0:
-                    # 访问登录后的URL让session自动保存所有cookies
                     self.session.get(poll_data["url"])
-                    
-                    # 从session中获取所有cookies
                     cookies = self._get_cookies_str()
                     self._save_to_config(cookies, remark)
                     print(f"\n✅ 登录成功！账号已保存到 {self.config_path}")
@@ -118,17 +120,17 @@ class BiliQRLogin:
             print("\n登录超时（3分钟）")
             return False
 
-        except requests.exceptions.RequestException as e:
-            print(f"\n网络错误: {str(e)}")
-            return False
         except Exception as e:
             print(f"\n发生未知错误: {str(e)}")
             return False
 
 
 if __name__ == "__main__":
+    bili_clients: List[BilibiliClient] = []
+    i = int(len(bili_clients))
+    num = i + 1
     print(" 账号登录 ".center(40, "="))
-    remark = input("请输入账号备注（回车使用默认名称）：").strip() or "新账号"
+    remark = input("请输入账号备注（回车使用默认名称）：").strip() or f"账号_{num}"
 
     qr = BiliQRLogin()
     if qr.login(remark):

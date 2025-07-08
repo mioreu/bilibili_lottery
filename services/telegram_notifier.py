@@ -1,10 +1,10 @@
-import requests
 import logging
 import os
-import time
-from typing import Dict, Any, List, Optional, TypedDict
+import urllib3
 from datetime import datetime
-
+from typing import Dict, Any, List, TypedDict
+import requests
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 telegram_logger = logging.getLogger("Bilibili.TelegramBot")
 
 class FailureItem(TypedDict):
@@ -14,6 +14,7 @@ class FailureItem(TypedDict):
     detail: str
     account_remark: str
 
+TELEGRAM_BOT_API = "https://api.telegram.org/bot"
 
 def notification_message(stats: Dict[str, int], duration: float, failures: List[FailureItem]) -> str:
     """构建Telegram通知消息"""
@@ -51,140 +52,75 @@ def notification_message(stats: Dict[str, int], duration: float, failures: List[
     
     return "".join(message)
 
-
-def validate_proxy_config_telegram(proxy_config: Optional[Dict[str, str]]) -> Optional[Dict[str, str]]:
-    """验证代理配置"""
-    if not proxy_config or not proxy_config.get("enable"):
-        return None
-
-    validated = {}
-    allowed_schemes = {
-        'http': ['http://', 'socks5://'],
-        'https': ['https://', 'socks5://', 'http://']
-    }
-
-    for proto in ['http', 'https']:
-        if url := proxy_config.get(proto):
-            if any(url.startswith(p) for p in allowed_schemes.get(proto, [])):
-                validated[proto] = url
-                display_url = url.split('@')[-1] if '@' in url else url
-                telegram_logger.debug(f"有效 {proto.upper()} 代理已配置 (Telegram): {display_url}")
-            else:
-                allowed_formats_str = ' 或 '.join(allowed_schemes.get(proto, []))
-                telegram_logger.warning(f"Telegram代理中无效 {proto.upper()} 代理格式: {url[:30]}... (应以 {allowed_formats_str} 开头)")
-
-    return validated or None
-
-
-def send_telegram_notification(
-    config: Dict[str, Any],
-    stats: Dict[str, int],
-    start_time: float,
-    failures: List[FailureItem],
-    message_type: str = "summary"
-) -> None:
+def send_telegram_notification(config: Dict[str, Any],stats: Dict[str, int],start_time: float,failures: List[FailureItem]):
     """发送Telegram通知消息"""
     telegram_config = config.get("telegram", {})
+    token = telegram_config.get("bot_token")
+    chat_id = telegram_config.get("chat_id")
+    proxies = config.get("proxy")
+    send_message = f"{TELEGRAM_BOT_API}{token}/sendMessage"
+    send_document = f"{TELEGRAM_BOT_API}{token}/sendDocument"
+    files_to_send = [config['file_paths']['main_log']]
+
     if not telegram_config.get("enable"):
         telegram_logger.info("Telegram 通知已禁用。")
         return
-
-    token = telegram_config.get("bot_token")
-    chat_id = telegram_config.get("chat_id")
-
     if not token or not chat_id:
         telegram_logger.warning("缺少Telegram配置参数 (bot_token 或 chat_id)，跳过发送通知。")
         return
-
-    # 验证并获取代理配置
-    proxies = validate_proxy_config_telegram(config.get("proxy"))
-
-    try:
-        telegram_api_url = f"https://api.telegram.org/bot{token}/sendMessage"
-        
-        # 构建消息内容
-        text_message = notification_message(stats, datetime.now().timestamp() - start_time, failures)
-
-        payload = {
-            "chat_id": chat_id,
-            "text": text_message,
-            "parse_mode": "HTML",
-            "disable_web_page_preview": True
-        }
-
-        telegram_logger.debug(f"正在发送 Telegram 通知到 chat_id: {chat_id}")
-
-        response = requests.post(
-            url=telegram_api_url,
-            json=payload,
-            proxies=proxies,
-            verify=False,
-            timeout=30
-        )
-        
-        response.raise_for_status()
-
-        response_json = response.json()
-        if response_json.get("ok"):
-            message_id = response_json.get("result", {}).get("message_id", "N/A")
-            telegram_logger.info(f"Telegram 通知发送成功 | 消息ID: {message_id}")
-             
-        else:
-            telegram_logger.error(f"Telegram API 返回错误 | Code: {response_json.get('error_code', 'N/A')} | Description: {response_json.get('description', '无描述')}")
-            
-    except requests.exceptions.Timeout:
-        telegram_logger.error("发送 Telegram 通知请求超时。")
-    except requests.exceptions.RequestException as e:
-        telegram_logger.error(f"发送 Telegram 通知时发生网络错误: {e}")
-    except Exception as e:
-        telegram_logger.exception(f"发送 Telegram 通知时发生未知错误: {e}")
-
-
-def send_telegram_files(config: Dict[str, Any]):
-    """发送文件"""
-    telegram_config = config.get("telegram", {})
-    if not telegram_config.get("enable"):
-        return
-    
-    bot_token = telegram_config.get('bot_token')
-    chat_id = telegram_config.get('chat_id')
-    proxy_config = config.get('proxy')
-    
-    files_to_send = []
-    if os.path.exists(config['file_paths']['parsed_dynamics']) and os.path.getsize(config['file_paths']['parsed_dynamics']) > 0:
-        files_to_send.append(config['file_paths']['parsed_dynamics'])
-    if os.path.exists(config['file_paths']['error_log']) and os.path.getsize(config['file_paths']['error_log']) > 0:
+    if os.path.getsize(config['file_paths']['error_log']) > 0:
         files_to_send.append(config['file_paths']['error_log'])
-    
-    if not files_to_send:
-        telegram_logger.info("没有要发送的文件。")
-        return
 
-    # 配置代理
-    proxies = validate_proxy_config_telegram(proxy_config)
+    # 构建消息内容
+    text_message = notification_message(stats, datetime.now().timestamp() - start_time, failures)
+    payload = {
+        "chat_id": chat_id,
+        "text": text_message,
+        "parse_mode": "HTML",
+        "disable_web_page_preview": False
+    }
 
-    # 发送文件
+    response_message = requests.post(
+        url=send_message,
+        json=payload,
+        proxies=proxies,
+        verify=False,
+        timeout=30
+    )
+
+    response_message.raise_for_status()
+    response_json = response_message.json()
+
+    if response_json.get("ok"):
+        message_id = response_json.get("result", {}).get("message_id", "N/A")
+        telegram_logger.info(f"Telegram 通知发送成功 | 消息ID: {message_id}")
+    else:
+        telegram_logger.error(f"Telegram API 返回错误 | Code: {response_json.get('error_code', 'N/A')} | Description: {response_json.get('description', '无描述')}")
+
+
     for file_path in files_to_send:
         try:
             with open(file_path, 'rb') as f:
                 file_name = os.path.basename(file_path)
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 safe_name = f"{timestamp}_{file_name}"
-                
-                response = requests.post(
-                    url=f"https://api.telegram.org/bot{bot_token}/sendDocument",
+
+                response_file = requests.post(
+                    url=send_document,
                     proxies=proxies,
                     data={'chat_id': chat_id},
                     files={'document': (safe_name, f)},
                     timeout=30
                 )
-                
-                if response.status_code != 200:
-                    telegram_logger.error(f"[Telegram] 文件发送失败: {file_name} | 响应: {response.text}")
+                response_file.raise_for_status()
+                response_json = response_file.json()
+
+                if response_json.get("ok"):
+                    message_id = response_json.get("result", {}).get("message_id", "N/A")
+                    telegram_logger.info(f"Telegram 文件 {file_name} 发送成功 | 消息ID: {message_id}")
                 else:
-                    telegram_logger.info(f"[Telegram] 已发送文件: {file_name}")
-            
-            time.sleep(3) # 每个文件发送后等待3秒
-        
+                    telegram_logger.error(
+                        f"Telegram API 返回错误 | Code: {response_json.get('error_code', 'N/A')} | Description: {response_json.get('description', '无描述')}")
+
         except Exception as e:
             telegram_logger.exception(f"[Telegram] 发送文件 {file_name} 时发生异常: {e}")
