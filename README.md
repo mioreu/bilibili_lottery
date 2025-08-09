@@ -175,11 +175,11 @@ python run.py
     在 `config.json` 中调整：
 
     ```json
-    "action_delay_min_seconds": 20,
-    "action_delay_max_seconds": 30
+    "action_delay_min_seconds": 2,
+    "action_delay_max_seconds": 8
     ```
 
-    这表示每两次操作（如点赞和评论之间）会有 20 到 30 秒的随机等待时间。
+    这表示每两次操作（如点赞和评论之间）会有 2 到 8 秒的随机等待时间。
   
 - 详细日志查看 `bili.log`
   
