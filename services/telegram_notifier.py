@@ -22,11 +22,12 @@ def notification_message(stats: Dict[str, int], duration: float, failures: List[
     message = [
         "<strong>博士，这里是澄闪的任务报告~</strong>\n\n",
         f"📊 <b>操作统计：</b>\n",
-        f"• 点赞成功：{stats.get('like_success', 0)}次\n",
-        f"• 转发成功：{stats.get('repost_success', 0)}次\n",
-        f"• 关注成功：{stats.get('follow_success', 0)}次\n",
-        f"• 评论成功：{stats.get('comment_success', 0)}次\n",
-        f"• 失败总数：{stats.get('total_failures', 0)}次\n\n",
+        f"• 爬取成功：{stats.get('crawl', 0)}次\n",
+        f"• 点赞成功：{stats.get('like', 0)}次\n",
+        f"• 转发成功：{stats.get('repost', 0)}次\n",
+        f"• 关注成功：{stats.get('follow', 0)}次\n",
+        f"• 评论成功：{stats.get('comment', 0)}次\n",
+        f"• 失败总数：{stats.get('failures', 0)}次\n\n",
         f"• 用时：{m}分{s}秒\n\n"
     ]
 
