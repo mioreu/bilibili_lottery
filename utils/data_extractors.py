@@ -1,10 +1,10 @@
 import logging
+from typing import Optional
 import re
 import api.api_constants as api
-from typing import Optional
+from services.deepseek_ai import check_at_requirement
 
 data_extractor_logger = logging.getLogger("Bilibili.DataExtractors")
-
 
 def extract_bili_jct(cookie_str: str) -> Optional[str]:
     """提取bili_jct"""
@@ -17,113 +17,84 @@ def extract_bili_jct(cookie_str: str) -> Optional[str]:
 def extract_dynamic_id(url: str) -> Optional[str]:
     """提取动态ID"""
     patterns = [
-        r"(?:www|m)\.bilibili\.com/dynamic/(\d+)",
-        r"(?:www|m)\.bilibili\.com/opus/(\d+)",
-        r"t\.bilibili\.com/(\d+)"
+        r'(?:bilibili\.com/(?:opus|dynamic)/)(\d+)(?=\D|$)',
+        r'(?:t\.bilibili\.com/)(\d+)(?=\D|$)'
     ]
     
     for pattern in patterns:
         if match := re.search(pattern, url):
             return match.group(1)
-    
-    data_extractor_logger.error(f"无法从URL中提取dynamic_id: {url}")
+    data_extractor_logger.debug(f"正在提取id {url}")
     return None
 
-
-def get_comment_oid_str(client: 'BilibiliClient', dynamic_id: str) -> Optional[str]:
-    """获取评论区OID"""
-    detail_data = client._request("GET", api.URL_DYNAMIC_CONTENT, params={"id": dynamic_id})
-
-    if not detail_data or detail_data.get("code") != 0:
-        error_msg = detail_data.get("message") if detail_data else "请求失败"
-        data_extractor_logger.error(f"获取动态 {dynamic_id} 评论OID失败: {error_msg}")
-        return None
-
-    modules = detail_data.get("data", {}).get("item", {}).get("modules", [])
-
-    module_stat_data = None
-    for module in modules:
-        if module.get("module_type") == "MODULE_TYPE_STAT":
-            module_stat_data = module.get("module_stat", {})
-            break
-    if not module_stat_data:
-        data_extractor_logger.error(f"动态 {dynamic_id} 数据中未找到module_stat")
-        return None
-
-    comment_id_str = module_stat_data.get("comment", {}).get("comment_id")
-
-    if comment_id_str:
-        data_extractor_logger.debug(f"获取到评论OID: {comment_id_str}")
-        return comment_id_str
-    data_extractor_logger.error(f"动态 {dynamic_id} 返回数据中未找到评论OID")
-    return None
-
-def fetch_comment_type_from_api(client: 'BilibiliClient', dynamic_id: str) -> Optional[int]:
-    """获取动态的评论类型"""
-    detail_data = client._request("GET", api.URL_DYNAMIC_CONTENT, params={"id": dynamic_id})
-
-    if not detail_data or detail_data.get("code") != 0:
-        error_msg = detail_data.get("message") if detail_data else "请求失败"
-        data_extractor_logger.error(f"API错误: 获取动态 {dynamic_id} 评论类型失败: {error_msg}")
-        return None
-
-    modules = detail_data.get('data', {}).get("item", {}).get("modules", [])
-    module_stat_data = None
-    for module in modules:
-        if module.get("module_type") == "MODULE_TYPE_STAT":
-            module_stat_data = module.get("module_stat", {})
-            break
-
-    if not module_stat_data:
-        data_extractor_logger.error(f"动态 {dynamic_id} 数据中未找到module_stat")
-        return None
-    comment_type = module_stat_data.get("comment", {}).get("comment_type")
-    if comment_type is None:
-        data_extractor_logger.warning(f"动态 {dynamic_id} 返回数据中未找到 comment_type")
-        return None
-
-    data_extractor_logger.debug(f"获取到comment_type: {comment_type}")
-    return int(comment_type)
-
-def get_dynamic_type_for_comment(client: 'BilibiliClient', dynamic_id: str, url: str) -> int:
-    """获取动态的评论类型"""
-    comment_type = fetch_comment_type_from_api(client, dynamic_id)
-    return comment_type if comment_type is not None else 11
-
-
-def get_dynamic_type_for_repost(dynamic_id: str, url: str) -> int:
-    """判断转发动态的类型参数"""
-    url_type_mapping = [
-        (r"bilibili\.com/opus/\d+", 2, "图文/opus"),
-        (r"t\.bilibili\.com/\d+", 4, "普通动态")
+def extract_video_bvid(url: str) -> Optional[str]:
+    """提取BVID"""
+    patterns = [
+        r'(?:bilibili\.com/video/)(BV[a-zA-Z0-9]{10})'
     ]
-    
-    for pattern, type_val, type_name in url_type_mapping:
-        if re.search(pattern, url):
-            return type_val
-    
-    data_extractor_logger.debug(f"无法确定动态{dynamic_id}的类型，使用默认值4")
-    return 4
 
-def get_author_mid(client: 'BilibiliClient', dynamic_id: str) -> Optional[int]:
-    """获取动态作者的UID"""
-    detail_data = client._request("GET", api.URL_DYNAMIC_CONTENT, params={"id": dynamic_id})
+    for pattern in patterns:
+        if match := re.search(pattern, url):
+            return match.group(1)
 
-    if not detail_data or detail_data.get("code") != 0:
-        error_msg = detail_data.get("message") if detail_data else "请求失败"
-        data_extractor_logger.error(f"API错误: {error_msg}")
-        return None
+    data_extractor_logger.debug(f"正在提取BVID {url} ")
+    data_extractor_logger.error(f"无法从URL中提取BVID: {url}")
+    return None
 
-    modules = detail_data.get("data", {}).get("item", {}).get("modules", [])
-    module_author_data = modules[0].get("module_author", {})
-    author_mid = module_author_data.get('user', {}).get("mid")
-    if not author_mid:
-        data_extractor_logger.warning(f"返回数据中未找到作者UID")
-        return None
+def extract_topic_and_fixed_at(content: str) -> str:
+    """提取话题和 @ 文本"""
+    topics = []
+    pattern1 = r'(?:带话题[：:\s]*|带话题词)\s*((?:#.*?#\s*)+)'
+    pattern2 = r'【(?:带|加)话题】\s*((?:#.*?#\s*)+)'
+    pattern3 = r'带上双话题\s*((?:#.*?#\s*)+)'
+    pattern4 = r'(?:带|加上)\s*(#.*?#)\s*话题'
+    pattern5 = r'带上话题[：:\s]*\s*((?:#.*?#\s*)+)'
+    pattern6 = r'带\s*(#.*?#)\s*转评'
 
-    data_extractor_logger.debug(f"获取到作者UID: {author_mid}")
-    return author_mid
+    patterns = [pattern1, pattern2, pattern3, pattern4, pattern5, pattern6]
 
+    for pattern in patterns:
+        matches = re.findall(pattern, content, re.MULTILINE)
+        for match in matches:
+            sub_topics = re.findall(r'#.*?#', match)
+            topics.extend(sub_topics)
+
+    unique_topics = []
+    seen_topics = set()
+    for topic in topics:
+        if topic not in seen_topics:
+            unique_topics.append(topic)
+            seen_topics.add(topic)
+
+    # 添加@
+    mentions = []
+    mention_pattern = r'\并@([\w\u4e00-\u9fa5]+)'
+    found_mentions = re.findall(mention_pattern, content)
+    for mention in found_mentions:
+        mentions.append(f" @{mention}")
+
+    result_list = unique_topics + mentions
+    print(f"提取到话题和@文本：{result_list}")
+    return "".join(result_list)
+
+def check_at(config, content: str) -> int:
+    """检查是否需要@好友"""
+    at_words = ["好友", "艾特", "搭子", "队友", "开黑", "拍档"]
+    deepseek_config = config["deepseek"]
+
+    for at_word in at_words:
+        if at_word in content:
+            need_to_at, at_count = check_at_requirement(
+                prompt=f"请分析以下内容:\n\n{content}",
+                api_key=deepseek_config.get("deepseek_api_key"),
+                model=deepseek_config.get("deepseek_model"),
+                temperature=deepseek_config.get("temperature")
+            )
+            if need_to_at:
+                return at_count
+            else:
+                return 0
+    return 0
 
 def check_follow_status(client: 'BilibiliClient', target_uid: int) -> tuple[int, str]:
     """检查关注状态"""
@@ -144,5 +115,5 @@ def check_follow_status(client: 'BilibiliClient', target_uid: int) -> tuple[int,
         0: "未关注"
     }
     message = status_mapping.get(code, "unknown")
-    
+
     return code, message

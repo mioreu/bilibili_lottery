@@ -33,10 +33,10 @@ class ColoredConsoleFormatter(logging.Formatter):
     # 语义关键词配置
     KEYWORD_COLORS = {
         LogColors.PINK: ["----", PROGRESS_PATTERN],
-        LogColors.BLUE: ["加载成功", "个帐号", "检测到", "正在处理", "正在执行操作"],
-        LogColors.YELLOW: ["开始", "检测", "正在爬取", "正在为动态", "正在检查"],
-        LogColors.GREEN: ["已关注", "成功", "运行完成", "处理完成", "生成成功", "操作完成"],
-        LogColors.RED: ['没有发现新', '错误'],  # 针对特定错误消息
+        LogColors.BLUE: ["加载成功", "个帐号", "检测到", "正在处理", "执行操作"],
+        LogColors.YELLOW: ["开始处理", "检测", "正在爬取", "正在为动态", "正在检查", "开始转发","已拉黑", "状态检查"],
+        LogColors.GREEN: ["已关注", "成功", "运行完成", "处理完成", "生成成功", "操作完成", "互相关注"],
+        LogColors.RED: ['没有发现新', '错误', "已被禁用"],
     }
 
     def format(self, record):
@@ -87,13 +87,13 @@ def _setup_console_handler(logger):
 
 def _setup_file_handler(logger, file_path, level, formatter):
     """
-    配置并添加一个旋转文件日志处理器。
+    配置并添加一个旋转文件日志处理器
     """
     try:
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         file_handler = RotatingFileHandler(
             file_path,
-            maxBytes=1 * 1024 * 1024,  # 1MB
+            maxBytes=10 * 1024 * 1024,  # 10MB
             backupCount=3,
             encoding='utf-8'
         )
@@ -106,7 +106,7 @@ def _setup_file_handler(logger, file_path, level, formatter):
 
 def setup_logger(log_level="INFO", log_file=None, error_file=None):
     """
-    配置全局日志记录器。
+    配置全局日志记录器
     """
     logger = logging.getLogger("Bilibili")
     if logger.hasHandlers():
@@ -125,7 +125,7 @@ def setup_logger(log_level="INFO", log_file=None, error_file=None):
         '%(asctime)s - %(levelname)s - [%(name)s] - %(funcName)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-    _setup_file_handler(logger, log_file, logging.INFO, file_formatter)
+    _setup_file_handler(logger, log_file, logging.DEBUG, file_formatter)
     _setup_file_handler(logger, error_file, logging.ERROR, file_formatter)
 
     logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
