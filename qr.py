@@ -16,11 +16,13 @@ class BiliQRLogin:
         self.session.headers.update(api.BASE_HEADERS)
 
     def _generate_qr(self) -> dict:
+        """生成登录二维码"""
         resp = self.session.get(api.API_QR_GEN, timeout=10)
         resp.raise_for_status()
         return resp.json()["data"]
 
     def _poll_login(self, qrcode_key: str) -> dict:
+        """查询扫码状态"""
         params = {"qrcode_key": qrcode_key}
         resp = self.session.get(api.API_QR_POLL, params=params, timeout=10)
         resp.raise_for_status()
@@ -51,11 +53,8 @@ class BiliQRLogin:
                 "remark": remark,
                 "cookie": cookies,
                 "enabled": True,
-                "like_enabled": True,
-                "comment_enabled": True,
+                "video_like_enabled": False,
                 "ai_comment": True,
-                "repost_enabled": True,
-                "follow_enabled": True,
                 "use_fixed_comment": False,
                 "fixed_comments": [],
                 "use_fixed_repost": False,
@@ -79,7 +78,7 @@ class BiliQRLogin:
 
     def _display_qr(self, url: str):
         encoded_url = quote(url)
-        qr_image_url = f"{api.QR_CODE_API}?data={encoded_url}&width=300"
+        qr_image_url = f"{api.API_QR_CODE}?data={encoded_url}&width=300"
 
         print("\n二维码：")
         qr = qrcode.QRCode()
@@ -93,8 +92,25 @@ class BiliQRLogin:
         except Exception as e:
             print(f"无法自动打开浏览器: {e}. 请手动访问上面的链接。")
 
+    def _get_buvid(self):
+        """获取 buvid3 和 buvid4"""
+        try:
+            resp = self.session.get(api.API_BUVID_SPI, timeout=5)
+            resp.raise_for_status()
+            data = resp.json()["data"]
+            if "b_3" in data:
+                self.session.cookies.set("buvid3", data["b_3"], domain=".bilibili.com")
+                print(f"已获取并设置 buvid3: {data['b_3']}")
+            if "b_4" in data:
+                self.session.cookies.set("buvid4", data["b_4"], domain=".bilibili.com")
+                print(f"已获取并设置 buvid4: {data['b_4']}")
+        except Exception as e:
+            print(f"获取 buvid3/buvid4 失败: {e}")
+
     def login(self, remark: str = "新账号") -> bool:
         try:
+            self._get_buvid()
+
             qr_data = self._generate_qr()
             print("\n请选择以下任一种方式扫码登录：")
             self._display_qr(qr_data["url"])

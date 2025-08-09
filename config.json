@@ -1,5 +1,30 @@
 {
+  "log_level": "INFO",
+  "at_list": [
+    "@夫兰人"
+  ],
+  "win_keywords": [
+    "中奖",
+    "恭喜",
+    "获得",
+    "抽中",
+    "中獎",
+    "开奖",
+    "私信",
+    "抽奖",
+    "地址"
+  ],
+  "enable_video_lottry": true,
+  "enable_interactive_lottery": false,
+  "repost_video_enabled": true,
+  "max_repost_videos": 4,
+  "use_comment_content": true,
+  "enableDeduplication": true,
+  "enable_comment_add_name":true,
+  "action_delay_min_seconds": 4,
+  "action_delay_max_seconds": 9,
   "accounts": [
+
   ],
   "deepseek": {
     "deepseek_api_key": "",
@@ -21,14 +46,9 @@
     "origin_urls": "origin.txt",
     "history_urls": "cache/history_url_list.txt",
     "history_at_ids": "cache/history_at_id_list.txt",
-    "parsed_dynamics": "output/parsed_dynamics.txt",
+    "history_reply_ids": "cache/history_reply_id_list.txt",
+    "history_message_ids": "cache/history_message_id_list.txt",
     "main_log": "logs/bili.log",
     "error_log": "logs/error.log"
-  },
-  "log_level": "INFO",
-  "win_keywords": ["中奖", "恭喜", "获得", "抽中", "中獎", "恭喜", "开奖"],
-  "action_delay_min_seconds": 5,
-  "action_delay_max_seconds": 15,
-  "parse_delay_min_seconds": 2,
-  "parse_delay_max_seconds": 4
+  }
 }
