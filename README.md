@@ -75,6 +75,7 @@ python qr.py
 
   * `remark`: 账号备注，用于日志和通知中区分账号。
   * `enabled`: `true` 表示启用该账号，`false` 则跳过。
+  * `video_like_enabled`: `true` 表示启用该账号进行视频点赞，`false` 则跳过。
   * `ai_comment`: `true` 优先使用 DeepSeek 生成评论。
   * `use_fixed_comment`: 当 AI 评论未启用或生成失败时，是否使用 `fixed_comments` 列表中的固定评论。
   * `fixed_comments`: 固定的评论内容列表，程序会从中随机选择一条。
