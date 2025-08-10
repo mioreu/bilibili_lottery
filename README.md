@@ -17,7 +17,7 @@
 1.  确保您的系统中已安装 **Python 3.8** 或更高版本。
 2.  安装项目所需的依赖库：
     ```bash
-    pip install requests qrcode
+    pip install requests qrcode sqlite3
     ```
 
 ## 配置流程
