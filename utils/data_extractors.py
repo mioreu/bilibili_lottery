@@ -13,7 +13,6 @@ def extract_bili_jct(cookie_str: str) -> Optional[str]:
     match = re.search(r"bili_jct=([^;]+)", cookie_str)
     return match.group(1).strip() if match else None
 
-
 def extract_dynamic_id(url: str) -> Optional[str]:
     """提取动态ID"""
     patterns = [
@@ -42,23 +41,28 @@ def extract_video_bvid(url: str) -> Optional[str]:
     return None
 
 def extract_topic_and_fixed_at(content: str) -> str:
-    """提取话题和 @ 文本"""
+    """提取话题文本和@用户"""
+    content = re.sub(r'##(.*?)##\s*#', r'#\1##', content)
     topics = []
-    pattern1 = r'(?:带话题[：:\s]*|带话题词)\s*((?:#.*?#\s*)+)'
-    pattern2 = r'【(?:带|加)话题】\s*((?:#.*?#\s*)+)'
-    pattern3 = r'带上双话题\s*((?:#.*?#\s*)+)'
-    pattern4 = r'(?:带|加上)\s*(#.*?#)\s*话题'
-    pattern5 = r'带上话题[：:\s]*\s*((?:#.*?#\s*)+)'
-    pattern6 = r'带\s*(#.*?#)\s*转评'
-
-    patterns = [pattern1, pattern2, pattern3, pattern4, pattern5, pattern6]
+    patterns = [
+        r'(?:带话题[：:\s]*|带话题词)\s*((?:#.*?#\s*)+)',
+        r'【(?:带|加)话题】\s*((?:#.*?#\s*)+)',
+        r'带上双话题\s*((?:#.*?#\s*)+)',
+        r'(?:带|加上)\s*(#.*?#)\s*话题',
+        r'带上话题[：:\s]*\s*((?:#.*?#\s*)+)',
+        r'带\s*(#.*?#)\s*转评',
+        r'(?:带话题|带话题词|带标签)\s*(#.*?#)',
+        r'(?:带|加上)\s*(#.*?#)\s*，',
+        r'带\s*(#.*?#)\s*转发'
+    ]
 
     for pattern in patterns:
         matches = re.findall(pattern, content, re.MULTILINE)
         for match in matches:
             sub_topics = re.findall(r'#.*?#', match)
-            topics.extend(sub_topics)
-
+            cleaned_topics = [topic.strip() for topic in sub_topics]
+            topics.extend(cleaned_topics)
+            
     unique_topics = []
     seen_topics = set()
     for topic in topics:
@@ -66,20 +70,21 @@ def extract_topic_and_fixed_at(content: str) -> str:
             unique_topics.append(topic)
             seen_topics.add(topic)
 
-    # 添加@
     mentions = []
-    mention_pattern = r'\并@([\w\u4e00-\u9fa5]+)'
+    mention_pattern = r'并@([\w\u4e00-\u9fa5]+)'
     found_mentions = re.findall(mention_pattern, content)
     for mention in found_mentions:
         mentions.append(f" @{mention}")
 
     result_list = unique_topics + mentions
+    result = " ".join(result_list)
+    
     print(f"提取到话题和@文本：{result_list}")
-    return "".join(result_list)
+    return result
 
 def check_at(config, content: str) -> int:
     """检查是否需要@好友"""
-    at_words = ["好友", "艾特", "搭子", "队友", "开黑", "拍档"]
+    at_words = ["TA","@谁","好友", "艾特", "搭子", "队友", "开黑", "拍档"]
     deepseek_config = config["deepseek"]
 
     for at_word in at_words:

@@ -10,7 +10,7 @@ from urllib.parse import quote
 from pathlib import Path
 
 class BiliQRLogin:
-    def __init__(self, config_path: str = "config.json"):
+    def __init__(self, config_path: str = "accounts.json"):
         self.config_path = Path(config_path).absolute()
         self.session = requests.Session()
         self.session.headers.update(api.BASE_HEADERS)
@@ -36,27 +36,35 @@ class BiliQRLogin:
         return "; ".join([f"{name}={value}" for name, value in cookie_dict.items()])
 
     def _save_to_config(self, cookies: str, remark: str):
-        config = {"accounts": []}
+        config: List[dict] = []
         if self.config_path.exists():
-            with open(self.config_path, "r", encoding="utf-8") as f:
-                config = json.load(f)
+            try:
+                with open(self.config_path, "r", encoding="utf-8") as f:
+                    loaded_content = json.load(f)
+                    if isinstance(loaded_content, list):
+                        config = loaded_content
+                    else:
+                        print(f"配置文件 {self.config_path} 格式错误，应为列表，已忽略旧配置")
+            except Exception as e:
+                print(f"读取配置文件时发生错误: {e}")
 
         replaced = False
-        for idx, account in enumerate(config["accounts"]):
-            if account["remark"] == remark:
-                config["accounts"][idx]["cookie"] = cookies
+        for idx, account in enumerate(config):
+            if account.get("remark") == remark:
+                config[idx]["cookie"] = cookies
                 replaced = True
                 break
 
         if not replaced:
-            config["accounts"].append({
+            new_account = {
                 "remark": remark,
                 "cookie": cookies,
                 "enabled": True,
-                "video_like_enabled": False,
+                "video_like_enabled": True,
                 "ai_comment": True,
-                "use_fixed_comment": False,
-                "fixed_comments": [],
+                "only_followed": False,
+                "use_fixed_comment": True,
+                "fixed_comments": ["许愿喵"],
                 "use_fixed_repost": False,
                 "fixed_reposts": [],
                 "emoticons": [
@@ -71,7 +79,8 @@ class BiliQRLogin:
                     "_(≧∇≦」∠)_",
                     "[打call]"
                 ]
-            })
+            }
+            config.append(new_account)
 
         with open(self.config_path, "w", encoding="utf-8") as f:
             json.dump(config, f, indent=2, ensure_ascii=False)

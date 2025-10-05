@@ -6,7 +6,6 @@ from logging.handlers import RotatingFileHandler
 
 
 class LogColors:
-    """定义日志输出的ANSI颜色码"""
     RESET = '\033[0m'
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
@@ -17,11 +16,6 @@ class LogColors:
 
 
 class ColoredConsoleFormatter(logging.Formatter):
-    """
-    一个自定义的日志格式化器，根据日志内容和级别添加颜色。
-    """
-    PROGRESS_PATTERN = re.compile(r'\[进度')
-
     LOG_LEVEL_COLORS = {
         logging.DEBUG: LogColors.YELLOW_BOLD,
         logging.INFO: LogColors.RESET,
@@ -32,11 +26,11 @@ class ColoredConsoleFormatter(logging.Formatter):
 
     # 语义关键词配置
     KEYWORD_COLORS = {
-        LogColors.PINK: ["----", PROGRESS_PATTERN],
-        LogColors.BLUE: ["加载成功", "个帐号", "检测到", "正在处理", "执行操作"],
-        LogColors.YELLOW: ["开始处理", "检测", "正在爬取", "正在为动态", "正在检查", "开始转发","已拉黑", "状态检查"],
+        LogColors.YELLOW: ["开始处理", "检测", "跳过", "正在为动态", "检查评论", "开始转发","已拉黑", "状态检查", "检查账号"],
         LogColors.GREEN: ["已关注", "成功", "运行完成", "处理完成", "生成成功", "操作完成", "互相关注"],
-        LogColors.RED: ['没有发现新', '错误', "已被禁用"],
+        LogColors.BLUE: ["正在处理", "正在检查", "未检测到明", "登录成功", "正在执行操作", "加载成功", "加载配置", "连接数据库"],
+        LogColors.PINK: ["----"],
+        LogColors.RED: ["错误", "失败", "异常", "无法", "无效", "被禁用", "没有发现新", "所有账号均未", "仅自己可见", "已删除"],
     }
 
     def format(self, record):
@@ -52,7 +46,7 @@ class ColoredConsoleFormatter(logging.Formatter):
                 elif isinstance(keyword, str) and keyword in message_content:
                     log_color = color
                     break
-            if log_color != self.LOG_LEVEL_COLORS.get(record.levelno, LogColors.RESET):  # 如果颜色被覆盖，则跳出
+            if log_color != self.LOG_LEVEL_COLORS.get(record.levelno, LogColors.RESET):
                 break
 
         # 错误级别特殊处理

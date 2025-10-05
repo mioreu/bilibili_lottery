@@ -1,7 +1,15 @@
 {
   "log_level": "INFO",
   "at_list": [
-    "@夫兰人"
+    "@夫兰人",
+    "@余华梦云",
+    "@小熊猫不是猫",
+    "@佐仓昂辉",
+    "@Yu宝",
+    "@MK_2233",
+    "@浅陌へ",
+    "@荷兰二哈在东北吃酸菜",
+    "@SRCA"
   ],
   "win_keywords": [
     "中奖",
@@ -12,25 +20,42 @@
     "开奖",
     "私信",
     "抽奖",
-    "地址"
+    "地址",
+    "联系",
+    "幸运"
   ],
-  "enable_video_lottry": true,
-  "enable_interactive_lottery": false,
-  "repost_video_enabled": true,
-  "max_repost_videos": 4,
-  "use_comment_content": true,
+  "followed_user": [
+    56291242
+  ],
+  "skip_user": [
+    155318245,
+    450619928,
+    100680137,
+    280604312,
+    256316789,
+    404271487,
+    3546860929157144,
+    7810629,
+    7903807,
+    671538942,
+    1242470427
+  ],
+  "enable_video_lottery": true,
+  "abnormal_comment_count": 4,
+  "enable_interactive_lottery": true,
+  "repost_video_enabled": false,
+  "max_repost_videos": 3,
+  "repost_after_processing": 4,
+  "use_comment_content": false,
   "enableDeduplication": true,
-  "enable_comment_add_name":true,
-  "action_delay_min_seconds": 4,
-  "action_delay_max_seconds": 9,
-  "accounts": [
-
-  ],
+  "enable_comment_add_name": false,
+  "action_delay_min_seconds": 0.3,
+  "action_delay_max_seconds": 0.8,
   "deepseek": {
     "deepseek_api_key": "",
     "deepseek_base_url": "https://api.deepseek.com/v1",
     "deepseek_model": "deepseek-chat",
-    "temperature": 1.3
+    "temperature": 2.0
   },
   "telegram": {
     "enable": false,
@@ -44,11 +69,8 @@
   },
   "file_paths": {
     "origin_urls": "origin.txt",
-    "history_urls": "cache/history_url_list.txt",
-    "history_at_ids": "cache/history_at_id_list.txt",
-    "history_reply_ids": "cache/history_reply_id_list.txt",
-    "history_message_ids": "cache/history_message_id_list.txt",
     "main_log": "logs/bili.log",
-    "error_log": "logs/error.log"
+    "error_log": "logs/error.log",
+    "database_cache": "dbs"
   }
 }

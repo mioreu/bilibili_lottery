@@ -6,6 +6,7 @@ BASE_HEADERS = {
         "Accept-Encoding": "gzip, deflate",
         "Connection": "keep-alive",
         "Origin": "https://www.bilibili.com",
+        "Sec-Ch-Ua-Platform": "'Windows'"
     }
 API_QR_GEN = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate" # 生成登录二维码
 API_QR_POLL = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll" # 查询扫码状态
@@ -22,9 +23,11 @@ URL_CHECK_AT = "https://api.bilibili.com/x/msgfeed/at" # 获取@详情
 URL_CHECK_REPLY = "https://api.bilibili.com/x/msgfeed/reply" # 获取回复详情
 URL_GET_SESSION_INFO = "https://api.vc.bilibili.com/session_svr/v1/session_svr/get_sessions" # 获取私信会话列表
 URL_MESSAGE_DETAIL = "https://api.vc.bilibili.com/svr_sync/v1/svr_sync/fetch_session_msgs" # 获取私信详情
-URL_REPOST_VIDEO = "https://api.bilibili.com/x/dynamic/feed/create/dyn" # 转发视频
+URL_CREATE_DYNAMIC = "https://api.bilibili.com/x/dynamic/feed/create/dyn" # 转发(创建动态)
 URL_LIKE_VIDEO = "https://api.bilibili.com/x/web-interface/archive/like" # 点赞视频
 URL_POPULAR_VIDEO = "https://api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd" # 获取热门视频
 URL_VIDEO_DETAIL = "https://api.bilibili.com/x/web-interface/view" # 获取视频详情
+URL_VIDEO_SUMMARY = "https://api.bilibili.com/x/web-interface/view/conclusion/get" # 获取视频ai总结
 URL_GET_COMMENT = "https://api.bilibili.com/x/v2/reply" # 获取评论区评论
-URL_COMMENT_REPLY = "https://api.bilibili.com/x/v2/reply/reply" # # 评论状态检查
+URL_COMMENT_REPLY = "https://api.bilibili.com/x/v2/reply/reply" # 评论状态检查
+URL_SPACE_DYNAMIC = "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space"  # 获取用户动态
